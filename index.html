@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Personality Chatbot</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f4f4f4;
+        transition: background 0.3s;
+    }
+
+    .chat-container {
+        width: 420px;
+        height: 85vh;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .header {
+        padding: 15px;
+        font-size: 20px;
+        text-align: center;
+        font-weight: bold;
+        background: #4a63e7;
+        color: white;
+        transition: background 0.3s;
+    }
+
+    .messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+    }
+
+    .msg {
+        margin-bottom: 15px;
+        max-width: 80%;
+        padding: 10px 14px;
+        border-radius: 10px;
+        line-height: 1.4;
+        word-wrap: break-word;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .user { margin-left: auto; border-bottom-right-radius: 0; }
+    .bot { margin-right: auto; border-bottom-left-radius: 0; }
+
+    .input-area {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        background: #f0f0f0;
+        transition: background 0.3s;
+    }
+
+    .input-area input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+
+    .input-area button {
+        margin-left: 10px;
+        padding: 12px 18px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        background: #4a63e7;
+        color: white;
+        transition: background 0.2s;
+    }
+
+    .input-area button:hover { background: #3d52c6; }
+
+    .personality-box {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        transition: background 0.3s;
+    }
+
+    .personality-box p { margin: 0 0 6px 0; font-weight: 500; }
+    .personality-box select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+</style>
+</head>
+
+<body>
+<div class="chat-container">
+
+    <div class="header">AI Personality Chatbot</div>
+
+    <div class="personality-box">
+        <p>Choose the type of personality you want:</p>
+        <select id="personality">
+            <option value="friendly">😊 Friendly</option>
+            <option value="professional">💼 Professional</option>
+            <option value="humorous">😂 Humorous</option>
+            <option value="helpful">👍 Helpful</option>
+            <option value="bestie">💖 Girly Bestie</option>
+        </select>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+        <input id="userInput" placeholder="Type your message..." />
+        <button id="sendBtn">Send</button>
+    </div>
+
+</div>
+
+<script>
+const messagesBox = document.getElementById("messages");
+const personalitySelect = document.getElementById("personality");
+const sendButton = document.getElementById("sendBtn");
+
+// Themes mapped to personalities
+const themes = {
+    friendly: { container:"#fffde7", header:"#fdd835", inputArea:"#fff9c4", user:"#fff59d", bot:"#fffde7", textColor:"#333" },
+    humorous: { container:"#fff3e0", header:"#ffb74d", inputArea:"#ffe0b2", user:"#ffcc80", bot:"#fff3e0", textColor:"#5d4037" },
+    professional: { container:"#e6ecff", header:"#4a63e7", inputArea:"#cfe0ff", user:"#7ea0ff", bot:"#e6ecff", textColor:"#003366" },
+    helpful: { container:"#e6fff0", header:"#6cc070", inputArea:"#d6ffe6", user:"#b6ffd1", bot:"#e6fff0", textColor:"#003300" },
+    bestie: { container:"#fff0f5", header:"#ff3f7f", inputArea:"#ffe6f0", user:"#ffb6c1", bot:"#fff0f5", textColor:"#333" }
+};
+
+function applyTheme(themeKey){
+    const theme = themes[themeKey];
+    const container = document.querySelector(".chat-container");
+    const header = document.querySelector(".header");
+    const inputArea = document.querySelector(".input-area");
+    const personalityBox = document.querySelector(".personality-box");
+    const select = document.getElementById("personality");
+
+    document.body.style.background = theme.container;
+    container.style.background = theme.container;
+    container.style.color = theme.textColor;
+    header.style.background = theme.header;
+    header.style.color = "#fff";
+    inputArea.style.background = theme.inputArea;
+    personalityBox.style.background = theme.inputArea;
+    select.style.background = theme.inputArea;
+    select.style.color = theme.textColor;
+    sendButton.style.background = theme.header;
+    sendButton.style.color = "#fff";
+
+    // Update existing messages
+    document.querySelectorAll(".user").forEach(el => { el.style.background = theme.user; el.style.color = theme.textColor; });
+    document.querySelectorAll(".bot").forEach(el => { el.style.background = theme.bot; el.style.color = theme.textColor; });
+}
+
+// Initialize theme
+applyTheme(personalitySelect.value);
+
+// Change theme when selecting a new personality
+personalitySelect.addEventListener("change", e => applyTheme(e.target.value));
+
+// Add messages to chat
+function addMessage(text, sender){
+    const div = document.createElement("div");
+    div.className = `msg ${sender}`;
+    div.textContent = text;
+
+    const theme = themes[personalitySelect.value];
+
+    if(sender === "user"){
+        div.style.background = theme.user;
+        div.style.color = theme.textColor;
+        div.style.marginLeft = "auto";
+        div.style.marginRight = "";
+        div.style.borderBottomRightRadius = "0";
+        div.style.borderBottomLeftRadius = "10px";
+    } else {
+        div.style.background = theme.bot;
+        div.style.color = theme.textColor;
+        div.style.marginRight = "auto";
+        div.style.marginLeft = "";
+        div.style.borderBottomLeftRadius = "0";
+        div.style.borderBottomRightRadius = "10px";
+    }
+
+    messagesBox.appendChild(div);
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+}
+
+// Send message
+async function sendMessage(){
+    const text = document.getElementById("userInput").value.trim();
+    if(!text) return;
+    addMessage(text, "user");
+    document.getElementById("userInput").value = "";
+
+    const loading = document.createElement("div");
+    loading.className = "msg bot";
+    loading.textContent = "Thinking...";
+
+    const theme = themes[personalitySelect.value];
+    loading.style.background = theme.bot;
+    loading.style.color = theme.textColor;
+    loading.style.marginRight = "auto";
+    loading.style.marginLeft = "";
+    loading.style.borderBottomLeftRadius = "0";
+    loading.style.borderBottomRightRadius = "10px";
+
+    messagesBox.appendChild(loading);
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+
+    try{
+        const response = await fetch("http://localhost:8000/chat", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({message:text, personality:personalitySelect.value})
+        });
+        const data = await response.json();
+        loading.remove();
+        if(data.response) addMessage(data.response,"bot");
+        else addMessage("Error: "+JSON.stringify(data.error),"bot");
+    } catch(err){
+        loading.remove();
+        addMessage("Network error: "+err.message,"bot");
+    }
+}
+
+sendButton.addEventListener("click", sendMessage);
+document.getElementById("userInput").addEventListener("keypress", e => { if(e.key==="Enter") sendMessage(); });
+
+</script>
+</body>
+</html>
+
