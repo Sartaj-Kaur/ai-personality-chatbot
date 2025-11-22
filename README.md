@@ -6,7 +6,7 @@ Made with **HTML**, **CSS**, **JavaScript**, and **FastAPI**.
 # 🌍 Live Demo
 
 Click to view the project online:  
-[AI Personality Chatbot]
+[AI Personality Chatbot](https://sartaj-kaur.github.io/ai-personality-chatbot/)
 
 ## 📂 Files Included
 - `index.html` – structure of the chat interface  
